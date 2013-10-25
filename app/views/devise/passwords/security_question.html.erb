@@ -1,0 +1,11 @@
+<h2>Please answer your security questions.</h2>
+
+<%= form_for(resource, :as => resource_name, :url => [:security_question, resource_name, :password], :html => { :method => :put,
+	:autocomplete => "off"  }) do |f| %>
+  <%= devise_error_messages! %>
+
+  <p><%= f.label :security_question_answer, SecurityQuestion.find(resource.security_question_id).name %><br />
+  <p><%= f.text_field :security_question_answer, {:value => ''} %></p>
+
+  <p><%= f.submit "Submit" %></p>
+<% end %>
