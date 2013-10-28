@@ -4,9 +4,9 @@ module DeviseSecurityExtension::Patches
     included do
       define_method :create do
         # only find via email, not login
-        self.resource = resource_class.find_or_initialize_with_error_by(:email, params[resource_name][:email], :not_found)
-        session[:temp_resource] = {:class => self.resource.class.to_s, :id => self.resource.id}
+        self.resource = resource_class.find_by_email params[resource_name][:email]
         if self.resource
+          session[:temp_resource] = {:class => self.resource.class.to_s, :id => self.resource.id}
           render action: 'security_question'
         else
           flash[:alert] = t('devise.email_not_found') if is_navigational_format?
