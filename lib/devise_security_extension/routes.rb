@@ -11,7 +11,7 @@ module ActionDispatch::Routing
 	def devise_password(mapping, controllers) #:nodoc:
 	resource :password, :only => [:new, :create, :edit, :update],
 	  :path => mapping.path_names[:password], :controller => controllers[:passwords] do
-	  	put '/', :action => :security_question, :as => "security_question"
+	  	put 'security_question', :action => :security_question, :as => "security_question"
 	  end
 	end
 
