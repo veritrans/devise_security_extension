@@ -13,6 +13,9 @@ module Devise
     module SecurityQuestionable
       extend ActiveSupport::Concern
 
+      def security_question_avaliable?
+        true # to overwrite
+      end
     end
   end
 end
