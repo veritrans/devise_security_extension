@@ -49,7 +49,7 @@ module Devise
       # archive the last password before save and delete all to old passwords from archive
       def archive_password
         if self.encrypted_password_changed?
-          if self.class.password_archiving_count.to_i > 0 && !old_password_exists?
+          if self.class.password_archiving_count.to_i > 0 && old_password_exists?
             self.old_passwords.create! old_password_params
             self.old_passwords.order(:id).reverse_order.offset(self.class.password_archiving_count).destroy_all
           else
@@ -59,7 +59,7 @@ module Devise
       end
       
       def old_password_exists?
-        old_password_params.encrypted_password.present?
+        old_password_params[:encrypted_password].present?
       end
       
       def old_password_params
