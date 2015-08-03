@@ -1,5 +1,4 @@
-#require 'rails/all'
-require 'active_record/connection_adapters/abstract/schema_definitions'
+require 'active_record'
 require 'active_support/core_ext/integer'
 require 'active_support/ordered_hash'
 require 'active_support/concern'
@@ -63,11 +62,19 @@ module Devise
   mattr_accessor :captcha_for_confirmation
   @@captcha_for_confirmation = false
 
+  # captcha integration for confirmation form
+  mattr_accessor :verification_code_generator
+  @@verification_code_generator = -> { SecureRandom.hex[0..4] }
+
   # Time period for account expiry from last_activity_at
   mattr_accessor :expire_after
   @@expire_after = 90.days
   mattr_accessor :delete_expired_after
   @@delete_expired_after = 90.days
+
+  # paranoid_verification will regenerate verifacation code after faild attempt
+  mattr_accessor :paranoid_code_regenerate_after_attempt
+  @@paranoid_code_regenerate_after_attempt = 10
 end
 
 # an security extension for devise
@@ -81,12 +88,14 @@ module DeviseSecurityExtension
 end
 
 # modules
-Devise.add_module :password_expirable, :controller => :password_expirable, :model => 'devise_security_extension/models/password_expirable', :route => :password_expired
-Devise.add_module :secure_validatable, :model => 'devise_security_extension/models/secure_validatable'
-Devise.add_module :password_archivable, :model => 'devise_security_extension/models/password_archivable'
-Devise.add_module :session_limitable, :model => 'devise_security_extension/models/session_limitable'
-Devise.add_module :expirable, :model => 'devise_security_extension/models/expirable'
-Devise.add_module :security_questionable, :model => 'devise_security_extension/models/security_questionable'
+Devise.add_module :password_expirable, controller: :password_expirable, model: 'devise_security_extension/models/password_expirable', route: :password_expired
+Devise.add_module :secure_validatable, model: 'devise_security_extension/models/secure_validatable'
+Devise.add_module :password_archivable, model: 'devise_security_extension/models/password_archivable'
+Devise.add_module :session_limitable, model: 'devise_security_extension/models/session_limitable'
+Devise.add_module :session_non_transferable, model: 'devise_security_extension/models/session_non_transferable'
+Devise.add_module :expirable, model: 'devise_security_extension/models/expirable'
+Devise.add_module :security_questionable, model: 'devise_security_extension/models/security_questionable'
+Devise.add_module :paranoid_verification, controller: :paranoid_verification_code, model: 'devise_security_extension/models/paranoid_verification', route: :verification_code
 
 # requires
 require 'devise_security_extension/routes'
@@ -94,3 +103,5 @@ require 'devise_security_extension/rails'
 require 'devise_security_extension/orm/active_record'
 require 'devise_security_extension/models/old_password'
 require 'devise_security_extension/models/security_question'
+require 'devise_security_extension/models/database_authenticatable_patch'
+require 'devise_security_extension/models/paranoid_verification'
